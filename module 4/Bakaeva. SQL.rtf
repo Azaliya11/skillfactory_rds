@@ -1,0 +1,195 @@
+{\rtf1\ansi\ansicpg1251\cocoartf2578
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 # \uc0\u1047 \u1072 \u1076 \u1072 \u1085 \u1080 \u1077  4.1\
+SELECT a.city,\
+       COUNT(a.airport_name)\
+FROM dst_project.airports a\
+GROUP BY city\
+HAVING COUNT(airport_name) > 1\
+\
+# \uc0\u1047 \u1072 \u1076 \u1072 \u1085 \u1080 \u1077  4.2\
+1.SELECT COUNT(DISTINCT status)\
+FROM dst_project.flights f\
+\
+2.SELECT COUNT(flight_no)\
+FROM dst_project.flights\
+WHERE status = 'Departed'\
+\
+3.SELECT COUNT(s.seat_no)\
+FROM dst_project.aircrafts a JOIN dst_project.seats s ON a.aircraft_code=s.aircraft_code\
+WHERE a.model = 'Boeing 777-300'\
+\
+4.SELECT COUNT(f.flight_no)\
+FROM dst_project.flights f\
+WHERE (scheduled_arrival BETWEEN 'April 1, 2017' AND 'September 1,2017')\
+  AND status='Arrived'\
+\
+# \uc0\u1047 \u1072 \u1076 \u1072 \u1085 \u1080 \u1077  4.3\
+1.SELECT COUNT(f.flight_no)\
+FROM dst_project.flights f\
+WHERE status='Cancelled'\
+\
+2.SELECT COUNT(aircraft_code)\
+FROM dst_project.aircrafts\
+WHERE model LIKE '%Boeing%'\
+\
+SELECT COUNT(aircraft_code)\
+FROM dst_project.aircrafts\
+WHERE model LIKE '%Sukhoi Superjet%'\
+\
+SELECT COUNT(aircraft_code)\
+FROM dst_project.aircrafts\
+WHERE model LIKE '%Airbus%'\
+\
+3.SELECT COUNT(airport_code)\
+FROM dst_project.airports\
+WHERE timezone LIKE '%Asia%' #52 \uc0\u1072 \u1101 \u1088 \u1086 \u1087 \u1086 \u1088 \u1090 \u1072 \
+\
+SELECT COUNT(airport_code)\
+FROM dst_project.airports\
+WHERE timezone LIKE '%Europe%'#52 \uc0\u1072 \u1101 \u1088 \u1086 \u1087 \u1086 \u1088 \u1090 \u1072 \
+\
+4.SELECT flight_id,\
+       (actual_arrival - scheduled_arrival) time_delta\
+FROM dst_project.flights\
+WHERE actual_arrival IS NOT NULL\
+ORDER BY 2 DESC\
+\
+# \uc0\u1047 \u1072 \u1076 \u1072 \u1085 \u1080 \u1077  4.4\
+1.SELECT flight_id, scheduled_departure\
+FROM dst_project.flights\
+GROUP BY flight_id\
+ORDER BY 2\
+\
+2.SELECT EXTRACT(EPOCH FROM(scheduled_arrival - scheduled_departure)) / 60 during\
+FROM dst_project.flights\
+ORDER BY during DESC\
+\
+3.SELECT arrival_airport,\
+       departure_airport,\
+       MAX(EXTRACT(EPOCH\
+                   FROM(scheduled_arrival - scheduled_departure)) / 60) during\
+FROM dst_project.flights\
+GROUP BY arrival_airport,\
+         departure_airport\
+ORDER BY 3 DESC\
+\
+4.SELECT EXTRACT(EPOCH\
+               FROM (AVG(actual_arrival - actual_departure))) / 60 long\
+FROM dst_project.flights\
+WHERE actual_arrival IS NOT NULL\
+\
+#\uc0\u1047 \u1072 \u1076 \u1072 \u1085 \u1080 \u1077  4.5\
+1.SELECT fare_conditions,\
+       COUNT(seat_no) seats\
+FROM dst_project.seats\
+WHERE aircraft_code = 'SU9'\
+GROUP BY fare_conditions\
+ORDER BY 2 DESC\
+\
+2.SELECT MIN(total_amount)\
+FROM dst_project.bookings\
+\
+\
+3.SELECT t.passenger_id,\
+       b.seat_no\
+FROM dst_project.tickets t\
+JOIN dst_project.boarding_passes b ON t.ticket_no=b.ticket_no\
+WHERE passenger_id='4313 788533'\
+\
+#\uc0\u1047 \u1072 \u1076 \u1072 \u1085 \u1080 \u1077  5.1\
+1.SELECT COUNT(flight_id)\
+FROM dst_project.flights\
+WHERE EXTRACT(YEAR\
+              FROM actual_arrival) = 2017\
+  AND arrival_airport =\
+    (SELECT airport_code\
+     FROM dst_project.airports\
+     WHERE city='Anapa')\
+    \
+2.SELECT COUNT(flight_id)\
+FROM dst_project.flights\
+WHERE EXTRACT(YEAR\
+              FROM actual_arrival) = 2017\
+  AND EXTRACT(MONTH\
+              FROM actual_departure) IN (1,\
+                                         2,\
+                                         12)\
+  AND departure_airport =\
+    (SELECT airport_code\
+     FROM dst_project.airports\
+     WHERE city='Anapa')\
+\
+3.SELECT COUNT(flight_id)\
+FROM dst_project.flights flights\
+WHERE departure_airport = 'AAQ'\
+  AND status in ('Cancelled')\
+    \
+\
+4.SELECT COUNT(flight_id)\
+FROM dst_project.flights\
+WHERE departure_airport =\
+    (SELECT airport_code\
+     FROM dst_project.airports\
+     WHERE city='Anapa')\
+  AND arrival_airport NOT IN\
+    (SELECT airport_code\
+     FROM dst_project.airports\
+     WHERE city='Moscow')\
+    \
+5.SELECT model\
+FROM dst_project.aircrafts\
+WHERE aircraft_code =\
+    (SELECT aircraft_code\
+     FROM dst_project.seats\
+     WHERE aircraft_code IN\
+         (SELECT DISTINCT(aircraft_code)\
+          FROM dst_project.flights\
+          WHERE departure_airport = 'AAQ')\
+     GROUP BY aircraft_code\
+     ORDER BY COUNT(seat_no) DESC\
+     LIMIT 1)\
+\
+# \uc0\u1092 \u1086 \u1088 \u1084 \u1080 \u1088 \u1086 \u1074 \u1072 \u1085 \u1080 \u1077  \u1080 \u1090 \u1086 \u1075 \u1086 \u1074 \u1086 \u1081  \u1074 \u1099 \u1073 \u1086 \u1088 \u1082 \u1080 \
+SELECT *\
+FROM\
+  (SELECT f.flight_id,\
+          f.flight_no,\
+          f.departure_airport,\
+          f.arrival_airport,\
+          f.scheduled_departure,\
+          f.scheduled_arrival,\
+          f.status,\
+          f.actual_departure,\
+          f.actual_arrival,\
+          f.aircraft_code\
+   FROM dst_project.flights f\
+   WHERE departure_airport = 'AAQ'\
+     AND (date_trunc('month', scheduled_departure) in ('2017-01-01',\
+                                                       '2017-02-01',\
+                                                       '2017-12-01'))\
+     AND status not in ('Cancelled')) AS fl\
+LEFT JOIN\
+  (SELECT a.aircraft_code,\
+          a.model,\
+          s.fare_conditions,\
+          COUNT(s.seat_no) seat\
+   FROM dst_project.aircrafts a\
+   JOIN dst_project.seats s ON s.aircraft_code=a.aircraft_code\
+   GROUP BY a.aircraft_code,\
+            a.model,\
+            s.fare_conditions) AS sa ON sa.aircraft_code=fl.aircraft_code\
+LEFT JOIN\
+  (SELECT t.flight_id,\
+          t.fare_conditions,\
+          COUNT(t.ticket_no) sold_tickets,\
+          SUM(t.amount) total_amount_tickets\
+   FROM dst_project.ticket_flights t\
+   GROUP BY t.flight_id,\
+            t.fare_conditions) AS tf ON fl.flight_id=tf.flight_id\
+AND sa.fare_conditions=tf.fare_conditions}
